@@ -1,40 +1,66 @@
-import { Link } from 'react-router-dom';
+import { Tabs as ReactTabs, TabList, Tab, TabPanel } from 'react-tabs';
+import 'react-tabs/style/react-tabs.css';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 
-type Tab = {
+type TabItem = {
   id: string;
   title: string;
   content: string;
 };
 
 type Props = {
-  tabs: Tab[];
-  activeTabId?: string;
+  tabs: TabItem[];
 };
 
-export const Tabs = ({ tabs, activeTabId }: Props) => {
-  const activeTab = tabs.find(tab => tab.id === activeTabId);
+export const Tabs = ({ tabs }: Props) => {
+  const navigate = useNavigate();
+  const { tabId } = useParams();
+
+  const activeIndex = tabs.findIndex(tab => tab.id === tabId);
+
+  const hasValidTab = activeIndex !== -1;
+
+  const selectedIndex = hasValidTab ? activeIndex : -1;
 
   return (
-    <>
-      <div className="tabs is-boxed">
-        <ul>
-          {tabs.map(tab => (
-            <li
-              key={tab.id}
-              data-cy="Tab"
-              className={tab.id === activeTabId ? 'is-active' : ''}
+    <ReactTabs
+      selectedIndex={selectedIndex}
+      onSelect={(index) => {
+        if (tabs[index]) {
+          navigate(`/tabs/${tabs[index].id}`);
+        }
+      }}
+    >
+      <TabList>
+        {tabs.map((tab) => (
+          <Tab key={tab.id} data-cy="Tab">
+            <Link
+              to={`/tabs/${tab.id}`}
+              data-cy="TabLink"
+              style={{ color: 'inherit', textDecoration: 'none', display: 'block' }}
+              onClick={(e) => {
+                e.preventDefault();
+              }}
             >
-              <Link to={`/tabs/${tab.id}`} data-cy="TabLink">
-                {tab.title}
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </div>
+              {tab.title}
+            </Link>
+          </Tab>
+        ))}
+      </TabList>
 
-      <div className="block" data-cy="TabContent">
-        {activeTab ? activeTab.content : 'Please select a tab'}
-      </div>
-    </>
+      {tabs.map((tab) => (
+        <TabPanel key={tab.id}>
+          <div data-cy="TabContent">
+            {hasValidTab ? tab.content : 'Please select a tab'}
+          </div>
+        </TabPanel>
+      ))}
+
+      {!hasValidTab && (
+        <div data-cy="TabContent">
+          Please select a tab
+        </div>
+      )}
+    </ReactTabs>
   );
 };
