@@ -1,4 +1,3 @@
-import { useParams } from 'react-router-dom';
 import { Tabs } from './Tabs';
 
 export const tabs = [
@@ -8,8 +7,6 @@ export const tabs = [
 ];
 
 export const TabsPage = () => {
-  const { tabId } = useParams();
-
   return (
     <div className="section">
       <div className="container">
